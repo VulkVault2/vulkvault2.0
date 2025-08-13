@@ -282,6 +282,7 @@ function createDocumentItem(item) {
 
 // Helper function to format file size
 function formatFileSize(bytes) {
+    if (!bytes) return '0 Bytes';
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -507,7 +508,7 @@ const urlInput = document.getElementById('urlInput');
 const itemTitle = document.getElementById('itemTitle');
 const itemDescription = document.getElementById('itemDescription');
 
-uploadForm.addEventListener('submit', (e) => {
+uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const fileType = fileTypeSelect.value;
@@ -544,10 +545,8 @@ uploadForm.addEventListener('submit', (e) => {
             return;
         }
         
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            const fileData = e.target.result;
+        try {
+            const fileData = await readFileAsDataURL(file);
             const fileExtension = file.name.split('.').pop().toLowerCase();
             const fileSize = file.size;
             
@@ -581,9 +580,11 @@ uploadForm.addEventListener('submit', (e) => {
             }
             
             saveData();
-        };
-        
-        reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Error reading file:', error);
+            alert('Error uploading file. Please try again.');
+            return;
+        }
     }
     
     // Reset form and close modal
@@ -597,6 +598,16 @@ uploadForm.addEventListener('submit', (e) => {
     fileUploadGroup.style.display = 'flex';
     urlInputGroup.style.display = 'none';
 });
+
+// Helper function to read file as Data URL
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
 
 // Search functionality
 const searchInput = document.getElementById('searchInput');
