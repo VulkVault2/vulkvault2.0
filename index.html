@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Digital Vault</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --text-color: #333;
+            --text-light: #777;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .clock-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .clock {
+            font-size: 1.2rem;
+            font-weight: bold;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .am-pm {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .search-bar {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            max-width: 400px;
+        }
+        
+        .search-bar input {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            width: 100%;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .search-bar input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .search-bar i {
+            margin-left: -35px;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+        
+        h1 {
+            color: var(--secondary-color);
+            margin-bottom: 0;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-light {
+            background-color: var(--light-color);
+            color: var(--text-color);
+        }
+        
+        .btn-light:hover {
+            background-color: #d5dbdb;
+        }
+        
+        .sections {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .section-btn {
+            padding: 10px 20px;
+            background-color: var(--light-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .section-btn.active, .section-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        
+        .item {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .item-thumbnail {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background-color: #f0f0f0;
+        }
+        
+        .item-info {
+            padding: 15px;
+        }
+        
+        .item-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .item-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .item-date {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .item-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .item:hover .item-actions {
+            opacity: 1;
+        }
+        
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-color);
+        }
+        
+        .action-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .url-item {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .url-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-light);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--light-color);
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+        
+        .close-modal {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+        
+        .close-modal:hover {
+            color: var(--danger-color);
+            transform: rotate(90deg);
+        }
+        
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        .form-group input, 
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            border: 2px dashed #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .file-upload:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .file-upload i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .file-upload p {
+            color: var(--text-light);
+            text-align: center;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            display: none;
+        }
+        
+        .submit-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .submit-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-bar {
+                max-width: 100%;
+            }
+            
+            .items-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>Secure Digital Vault</h1>
+                <div class="clock-container">
+                    <div class="clock" id="clock">12:00:00</div>
+                    <div class="am-pm" id="am-pm">AM</div>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search your vault..." id="searchInput">
+                <i class="fas fa-search" id="searchIcon"></i>
+            </div>
+        </header>
+        
+        <div class="actions">
+            <button class="btn btn-primary" id="uploadBtn">
+                <i class="fas fa-upload"></i> Upload
+            </button>
+            <button class="btn btn-light" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+        
+        <div class="sections">
+            <button class="section-btn active" data-section="photos">
+                <i class="fas fa-image"></i> Photos
+            </button>
+            <button class="section-btn" data-section="videos">
+                <i class="fas fa-video"></i> Videos
+            </button>
+            <button class="section-btn" data-section="audio">
+                <i class="fas fa-music"></i> Audio
+            </button>
+            <button class="section-btn" data-section="urls">
+                <i class="fas fa-link"></i> URLs
+            </button>
+            <button class="section-btn" data-section="documents">
+                <i class="fas fa-file-alt"></i> Documents
+            </button>
+        </div>
+        
+        <!-- Photos Section -->
+        <div class="content-section active" id="photos-section">
+            <div class="items-grid" id="photos-grid">
+                <div class="empty-state">
+                    <i class="fas fa-image"></i>
+                    <h3>No photos found</h3>
+                    <p>Upload your first photo to get started</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Videos Section -->
+        <div class="content-section" id="videos-section">
+            <div class="items-grid" id="videos-grid">
+                <div class="empty-state">
+                    <i class="fas fa-video"></i>
+                    <h3>No videos found</h3>
+                    <p>Upload your first video to get started</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Audio Section -->
+        <div class="content-section" id="audio-section">
+            <div class="items-grid" id="audio-grid">
+                <div class="empty-state">
+                    <i class="fas fa-music"></i>
+                    <h3>No audio files found</h3>
+                    <p>Upload your first audio file to get started</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- URLs Section -->
+        <div class="content-section" id="urls-section">
+            <div class="items-grid" id="urls-grid">
+                <div class="empty-state">
+                    <i class="fas fa-link"></i>
+                    <h3>No URLs saved</h3>
+                    <p>Save your first URL to get started</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Documents Section -->
+        <div class="content-section" id="documents-section">
+            <div class="items-grid" id="documents-grid">
+                <div class="empty-state">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>No documents found</h3>
+                    <p>Upload your first document to get started</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Upload to Vault</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form class="upload-form" id="uploadForm">
+                <div class="form-group">
+                    <label for="fileType">Content Type</label>
+                    <select id="fileType" required>
+                        <option value="">Select type</option>
+                        <option value="photo">Photo</option>
+                        <option value="video">Video</option>
+                        <option value="audio">Audio</option>
+                        <option value="url">URL</option>
+                        <option value="document">Document</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="fileUploadGroup">
+                    <label>Upload File</label>
+                    <div class="file-upload" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop your file here or click to browse</p>
+                        <input type="file" id="fileInput" style="display: none;">
+                        <div class="file-name" id="fileName"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="urlInputGroup" style="display: none;">
+                    <label for="urlInput">URL</label>
+                    <input type="url" id="urlInput" placeholder="https://example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemTitle">Title</label>
+                    <input type="text" id="itemTitle" placeholder="Enter title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemDescription">Description</label>
+                    <textarea id="itemDescription" placeholder="Enter description (optional)"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-upload"></i> Upload to Vault
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- View Modal -->
+    <div class="modal" id="viewModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="viewModalTitle">Item Details</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div id="viewModalContent" style="max-height: 70vh; overflow-y: auto;">
+                <!-- Content will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // JavaScript will be added in the next steps
+    </script>
+</body>
+</html>
